@@ -2,8 +2,11 @@ package trabalho_01;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -76,7 +79,7 @@ public class Grafo {
         typeComplete = typeGraphComplete(matrix);
         typeRegular = typeGraphRegular(matrix);
         typeNotDirected = typeGraphNotDirected(matrix);
-        //typeBipartite = typeGraphBipartite(matrix);
+        typeBipartite = ehBipartido(matrix);
         
     }
     
@@ -250,14 +253,32 @@ public class Grafo {
                           {1,0,1},
                           {1,1,0}};*/
         
-        /*int[][] matrix = {{0,1,1},
-                          {1,0,1},
-                          {1,1,0}};*/
+        int[][] matrix = {{0,0,1},
+                          {0,0,1},
+                          {1,1,0}};
         
-        int[][] matrix = {{0,0,0,0},
+        /*int[][] matrix = new int[3][3];
+
+        matrix[0][0] = 0;
+        matrix[0][1] = 1;
+        matrix[0][2] = 1;
+        matrix[1][0] = 1;
+        matrix[1][1] = 0;
+        matrix[1][2] = 1;
+        matrix[2][0] = 1;
+        matrix[2][1] = 1;
+        matrix[2][2] = 0;*/
+        
+        /*int[][] matrix = {{0,0,0,0},
                           {0,0,0,0},
                           {0,0,0,0},
-                          {0,0,0,0}};
+                          {0,0,0,0}};*/
+        
+        /*int[][] matrix = {{0,0,0,1,1},
+                          {0,0,0,1,1},
+                          {0,0,0,1,1},
+                          {1,1,1,0,0},
+                          {1,1,1,0,0}};
         
         /*int[][] matrix = {{0,1,1,1},
                           {1,0,1,1},
@@ -359,56 +380,57 @@ public class Grafo {
         return true;
     }
     
-//    public class Main {
-//    public boolean ehBipartido(int[][] matriz) {
-//
-//        //tu tem um método ai pra ver se ele não é simples, então eu vou assumir que ele é
-//        List<Aresta> arestas = new ArrayList<>();
-//        for (int i = 0; i < matriz.length; i++) {
-//            for (int j = 0; j < matriz[i].length; i++) {
-//                if (i != j) {
-//                    if (matriz[i][j] == 1) {
-//                        arestas.add(new Aresta(i, j));
-//                    }
-//                }
-//            }
-//        }
-//
-//        Map<Integer, Integer> verticeCor = new HashMap<>();
-//        int cor = 2;
-//        IntStream.rangeClosed(0, matriz.length).forEach(i -> verticeCor.put(i, flipColor(cor)));
-//
-//        for (Aresta aresta : arestas) {
-//            int aresta1 = aresta.getEntrada();
-//            int aresta2 = aresta.getSaida();
-//
-//            if (verticeCor.get(aresta1) == verticeCor.get(aresta2)) return false;
-//        }
-//        return true;
-//    }
-//
-//    public int flipColor(int color) {
-//        return color == 1 ? 2 : 1;
-//    }
-//}
-//
-//class Aresta {
-//    private final int entrada;
-//    private final int saida;
-//
-//    public Aresta(int entrada, int saida) {
-//        this.entrada = entrada;
-//        this.saida = saida;
-//    }
-//
-//    public int getEntrada() {
-//        return entrada;
-//    }
-//
-//    public int getSaida() {
-//        return saida;
-//    }
-//}
+    public boolean ehBipartido(int[][] matriz) {
+
+        //tu tem um método ai pra ver se ele não é simples, então eu vou assumir que ele é
+        List<Aresta> arestas = new ArrayList<>();
+        for (int i = 0; i < matriz.length; i++) {
+            for (int j = 0; j < matriz.length; j++) {
+                if (i != j) {
+                    if (matriz[i][j] == 1) {
+                        arestas.add(new Aresta(i, j));
+                    }
+                }
+            }
+        }
+
+        Map<Integer, Integer> verticeCor = new HashMap<>();
+        int cor = 2;
+        int[] valores = IntStream.range(0, matriz.length).toArray();
+        for (int valor : valores) {
+            cor = flipColor(cor);
+            verticeCor.put(valor, cor);
+        }
+        for (Aresta aresta : arestas) {
+            int aresta1 = aresta.getEntrada();
+            int aresta2 = aresta.getSaida();
+
+            if (verticeCor.get(aresta1) == verticeCor.get(aresta2)) return false;
+        }
+        return true;
+    }
+
+    public static int flipColor(int color) {
+        return color == 1 ? 2 : 1;
+    }
+
+    class Aresta {
+        private final int entrada;
+        private final int saida;
+
+        public Aresta(int entrada, int saida) {
+            this.entrada = entrada;
+            this.saida = saida;
+        }
+
+        public int getEntrada() {
+            return entrada;
+        }
+
+        public int getSaida() {
+            return saida;
+        }
+}
     
 //    private boolean typeGraphBipartite(int[][] matrix){
 //        
