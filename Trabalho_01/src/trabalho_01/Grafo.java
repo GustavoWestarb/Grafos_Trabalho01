@@ -12,8 +12,7 @@ import java.util.List;
 public class Grafo {
     
     private int matrix[][]; //Matriz de pesos dos vertices, em inteiros
-    private int numVertices; //Quantidade de vertices do grafo
-    private int position[]; //Posição para percorrer as adjs do vertice v
+    private int colors[];
     private boolean typeDigrafo;
     private boolean typeSimpleGraph;
     private boolean typeMultiGraph;
@@ -23,41 +22,7 @@ public class Grafo {
     private boolean typeBipartite;
     private boolean typeNotDirected;
     
-    /**
-     * Construtor da matriz de adjacência baseada em no número de vértices
-     * @param numVertices Quantidade de vértices do Grafo.
-     */
-    public Grafo(int numVertices){
-        
-        this.matrix = new int [numVertices][numVertices];
-        this.position = new int [numVertices]; 
-	this.numVertices = numVertices;
-	
-        //Preenche todas as posições da matriz com 0 e sua posição em -1
-        for ( int i = 0; i < this.numVertices; i++) {
-            for ( int j = 0; j < this.numVertices; j++){
-                this.matrix[i][j] = 0;
-                this.position[i] = -1;
-            }
-        }
-    }
-    
-    /**
-     * Construtor do grafo com uma matriz predefinida 
-     * @param matrix Matriz de adjacência
-     */
-    public Grafo(int matrix[][]){
-        
-        this.matrix = matrix;
-        this.position = new int[this.matrix.length];
-        this.numVertices = this.matrix.length;
-        
-        //Preenche posição em -1 para buscas
-        for ( int i = 0; i < this.numVertices; i++) {
-            for ( int j = 0; j < this.numVertices; j++){
-                this.position[i] = -1;
-            }
-        }
+    private Grafo() {
     }
     
     /**
@@ -111,6 +76,7 @@ public class Grafo {
         typeComplete = typeGraphComplete(matrix);
         typeRegular = typeGraphRegular(matrix);
         typeNotDirected = typeGraphNotDirected(matrix);
+        //typeBipartite = typeGraphBipartite(matrix);
         
     }
     
@@ -159,79 +125,86 @@ public class Grafo {
                 
         return result.toString();
     }
-    
-    /**
-     * Informa os grais dos vertices do grafo em contexto
-     * @return Retorna os grais e a seguencia de grau
-     */
-    public String grausDoVertice(){
-        return degreeVertice(this.matrix);
-    }
-    
-    /**
-     * Informa os grais dos vertices do grafo passado por parametro
-     * @return Retorna os grais e a seguencia de grau
-     */
-    public String grausDoVertice(int matrix[][]){
-        return degreeVertice(matrix);
-    }
-    
-    /**
-     * Informa as arrestas do grafo em contexto
-     * @return Retorna as arestas e suas ligações, e a quantidade de arestas
-     */
-    public String arestasDoGrafo(){
-        return edgesOfGraph(this.matrix);
-    }
-    
-    /**
-     * Informa as arrestas do grafo passado por parametro
-     * @return Retorna as arestas e suas ligações, e a quantidade de arestas
-     */
-    public String arestasDoGrafo(int matrix[][]){
-        return edgesOfGraph(matrix);
-    }
 
-    private String degreeVertice(int[][] matrix) {
+    private String grausDoVertice(int[][] matrix) {
         StringBuilder returnString = new StringBuilder();
-        int[] sequence = new int[this.numVertices];
+        int[] sequence = new int[matrix.length];
+        int[] sequenceIn = new int[matrix.length];
+        int[] sequenceOut = new int[matrix.length];
         
-        for (int i = 0; i < matrix.length; i++) {
-            int grau = 0;
+        
+        if (typeGraphNotDirected(matrix)) {
+            for (int i = 0; i < matrix.length; i++) {
+                int grau = 0;
             
-            for (int j = 0; j < matrix.length; j++){
-                grau += matrix[i][j];
+                for (int j = 0; j < matrix[i].length; j++){
+                    grau += matrix[i][j];
+                }
+            
+                sequence[i] = grau;
+            
+                returnString.append("Vértice V");
+                returnString.append(i);
+                returnString.append(", grau dele é: ");
+                returnString.append(grau);
+                returnString.append(";");
+                returnString.append("\n");
+                
             }
             
-            sequence[i] = grau;
+            Arrays.sort(sequence);
+        
+            returnString.append("Sequência de graus: ");
+            returnString.append(Arrays.toString(sequence));
+        }
+        else{
             
-            returnString.append("Vértice V");
-            returnString.append(i);
-            returnString.append(", grau dele é: ");
-            returnString.append(grau);
-            returnString.append(";");
+            for (int i = 0; i < matrix.length; i++) {
+                int grauIn = 0;
+                int grauOut = 0;
+            
+                for (int j = 0; j < matrix[i].length; j++){
+                    grauOut += matrix[i][j];
+                    grauIn += matrix[j][i];
+                }
+            
+                sequenceIn[i] = grauIn;
+                sequenceOut[i] = grauOut;
+            
+                returnString.append("Vértice V");
+                returnString.append(i);
+                returnString.append(", grau de entrada é: ");
+                returnString.append(grauIn);
+                returnString.append(", grau de saída é: ");
+                returnString.append(grauOut);
+                returnString.append(";");
+                returnString.append("\n");
+                
+            }
+            
+            Arrays.sort(sequenceIn);
+            Arrays.sort(sequenceOut);
+        
+            returnString.append("Sequência de graus de entrada: ");
+            returnString.append(Arrays.toString(sequenceIn));
             returnString.append("\n");
+            returnString.append("Sequência de graus de saída: ");
+            returnString.append(Arrays.toString(sequenceOut));
             
         }
-        
-        Arrays.sort(sequence);
-        
-        returnString.append("Sequência de graus: ");
-        returnString.append(Arrays.toString(sequence));
-        
         return returnString.toString();
     }
     
-    private String edgesOfGraph(int[][] matrix) {
+    private String arestasDoGrafo(int[][] matrix) {
         int count = 0;
         StringBuilder returnString = new StringBuilder();
         returnString.append("Arestas: ");
         returnString.append("\n");
         
         for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length; j++) {
+            for (int j = 0; j < matrix[i].length; j++) {
                 if (matrix[i][j] != 0) {
-                    count++;
+                    count = count + matrix[i][j];
                     returnString.append("V");
                     returnString.append(i);
                     returnString.append("---");
@@ -252,12 +225,46 @@ public class Grafo {
     public static void main(String args[]) {
         
         //matriz 4x4 simples;
-        int[][] matrix = {{0,1,1,1},
+        /*int[][] matrix = {{0,0,0,1},
+                          {1,0,0,0},
+                          {0,1,0,0},
+                          {0,1,1,0}};*/
+        
+        /*int[][] matrix = {{0,1,1,2},
                           {1,0,1,0},
                           {1,1,0,1},
-                          {1,0,1,0}};
+                          {2,0,1,0}};*/
         
-        Grafo grafo = new Grafo(matrix);
+        //ESSE DA PAU NAS ARESTAS
+        /*int[][] matrix = {{0,0,1,0},
+                          {1,0,2,0},
+                          {0,0,0,1},
+                          {1,0,1,1}};*/
+        
+        /*int[][] matrix = {{0,1,1,1},
+                          {1,0,1,0},
+                          {1,1,1,1},
+                          {1,0,1,0}};*/
+        
+        /*int[][] matrix = {{0,1,1},
+                          {1,0,1},
+                          {1,1,0}};*/
+        
+        /*int[][] matrix = {{0,1,1},
+                          {1,0,1},
+                          {1,1,0}};*/
+        
+        int[][] matrix = {{0,0,0,0},
+                          {0,0,0,0},
+                          {0,0,0,0},
+                          {0,0,0,0}};
+        
+        /*int[][] matrix = {{0,1,1,1},
+                          {1,0,1,1},
+                          {1,1,0,1},
+                          {1,1,1,0}};*/
+        
+        Grafo grafo = new Grafo();
         
         System.out.println(grafo.tipoDoGrafo(matrix));
         System.out.println(grafo.grausDoVertice(matrix));
@@ -352,18 +359,92 @@ public class Grafo {
         return true;
     }
     
-    private boolean typeGraphBipartite(int[][] matrix){
-        
-        if (!typeGraphSimple(matrix)) {
-            return false;
-        }
-        
-        int[] colors = new int[matrix.length];
-        
-        for (int i = 0; i < matrix.length; i++) {
-            colors[i] = -1;
-        }
-        
-        return true;
-    }
+//    public class Main {
+//    public boolean ehBipartido(int[][] matriz) {
+//
+//        //tu tem um método ai pra ver se ele não é simples, então eu vou assumir que ele é
+//        List<Aresta> arestas = new ArrayList<>();
+//        for (int i = 0; i < matriz.length; i++) {
+//            for (int j = 0; j < matriz[i].length; i++) {
+//                if (i != j) {
+//                    if (matriz[i][j] == 1) {
+//                        arestas.add(new Aresta(i, j));
+//                    }
+//                }
+//            }
+//        }
+//
+//        Map<Integer, Integer> verticeCor = new HashMap<>();
+//        int cor = 2;
+//        IntStream.rangeClosed(0, matriz.length).forEach(i -> verticeCor.put(i, flipColor(cor)));
+//
+//        for (Aresta aresta : arestas) {
+//            int aresta1 = aresta.getEntrada();
+//            int aresta2 = aresta.getSaida();
+//
+//            if (verticeCor.get(aresta1) == verticeCor.get(aresta2)) return false;
+//        }
+//        return true;
+//    }
+//
+//    public int flipColor(int color) {
+//        return color == 1 ? 2 : 1;
+//    }
+//}
+//
+//class Aresta {
+//    private final int entrada;
+//    private final int saida;
+//
+//    public Aresta(int entrada, int saida) {
+//        this.entrada = entrada;
+//        this.saida = saida;
+//    }
+//
+//    public int getEntrada() {
+//        return entrada;
+//    }
+//
+//    public int getSaida() {
+//        return saida;
+//    }
+//}
+    
+//    private boolean typeGraphBipartite(int[][] matrix){
+//        
+//        if (!typeGraphSimple(matrix)) {
+//            return false;
+//        }
+//        
+//        this.colors = new int[matrix.length];
+//        
+//        for (int i = 0; i < matrix.length; i++) {
+//            colors[i] = 0;
+//        }
+//        
+//        for (int x = 0; x < colors.length; ++x) {
+//            if (colors[x] == 0){
+//                if (!differentiateColor(x, 1)){
+//                    return false;
+//                }
+//            }
+//	}
+//        
+//        return true;
+//    }
+//    
+//    private boolean differentiateColor(int v, int u){
+//       
+//        this.colors[v] = u;
+//        u = (u == 1) ? 2 : 1;
+//        
+//        for (int i = 0; i < colors.length; i++) {
+//            if (colors[i] == 0) {
+//                differentiateColor(i, u);
+//            } else if (colors[i] == u){
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 }
