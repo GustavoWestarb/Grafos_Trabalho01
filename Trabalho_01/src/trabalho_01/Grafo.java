@@ -239,10 +239,10 @@ public class Grafo {
                           {2,0,1,0}};*/
         
         //ESSE DA PAU NAS ARESTAS
-        /*int[][] matrix = {{0,0,1,0},
+        int[][] matrix = {{0,0,1,0},
                           {1,0,2,0},
                           {0,0,0,1},
-                          {1,0,1,1}};*/
+                          {1,0,1,1}};
         
         /*int[][] matrix = {{0,1,1,1},
                           {1,0,1,0},
@@ -253,9 +253,9 @@ public class Grafo {
                           {1,0,1},
                           {1,1,0}};*/
         
-        int[][] matrix = {{0,0,1},
+        /*int[][] matrix = {{0,1,1},
                           {0,0,1},
-                          {1,1,0}};
+                          {1,0,0}};
         
         /*int[][] matrix = new int[3][3];
 
@@ -278,7 +278,14 @@ public class Grafo {
                           {0,0,0,1,1},
                           {0,0,0,1,1},
                           {1,1,1,0,0},
-                          {1,1,1,0,0}};
+                          {1,1,1,0,0}};*/
+        
+        /*int[][] matrix = {{0,0,1,1,1,2},
+                          {0,0,0,0,1,0},
+                          {1,0,0,0,0,0},
+                          {1,0,0,0,0,0},
+                          {1,1,0,0,0,0},
+                          {0,2,0,0,0,0}};
         
         /*int[][] matrix = {{0,1,1,1},
                           {1,0,1,1},
@@ -381,13 +388,12 @@ public class Grafo {
     }
     
     public boolean ehBipartido(int[][] matriz) {
-
-        //tu tem um método ai pra ver se ele não é simples, então eu vou assumir que ele é
+        
         List<Aresta> arestas = new ArrayList<>();
         for (int i = 0; i < matriz.length; i++) {
-            for (int j = 0; j < matriz.length; j++) {
+            for (int j = i + 1; j < matriz.length; j++) {
                 if (i != j) {
-                    if (matriz[i][j] == 1) {
+                    if (matriz[i][j] >= 1) {
                         arestas.add(new Aresta(i, j));
                     }
                 }
@@ -395,17 +401,26 @@ public class Grafo {
         }
 
         Map<Integer, Integer> verticeCor = new HashMap<>();
-        int cor = 2;
         int[] valores = IntStream.range(0, matriz.length).toArray();
         for (int valor : valores) {
-            cor = flipColor(cor);
-            verticeCor.put(valor, cor);
+            verticeCor.put(valor, 0);
         }
+        int cor = 2;
         for (Aresta aresta : arestas) {
             int aresta1 = aresta.getEntrada();
             int aresta2 = aresta.getSaida();
-
-            if (verticeCor.get(aresta1) == verticeCor.get(aresta2)) return false;
+            cor = flipColor(cor);
+            if (verticeCor.get(aresta1) == 0) {
+                verticeCor.put(aresta1, cor);
+            }
+            cor = flipColor(cor);
+            if (verticeCor.get(aresta2) == 0) {                
+                verticeCor.put(aresta2, cor);
+            }
+            if (verticeCor.get(aresta1) == verticeCor.get(aresta2)){
+                return false;
+            }
+            
         }
         return true;
     }
@@ -413,24 +428,6 @@ public class Grafo {
     public static int flipColor(int color) {
         return color == 1 ? 2 : 1;
     }
-
-    class Aresta {
-        private final int entrada;
-        private final int saida;
-
-        public Aresta(int entrada, int saida) {
-            this.entrada = entrada;
-            this.saida = saida;
-        }
-
-        public int getEntrada() {
-            return entrada;
-        }
-
-        public int getSaida() {
-            return saida;
-        }
-}
     
 //    private boolean typeGraphBipartite(int[][] matrix){
 //        
@@ -470,3 +467,21 @@ public class Grafo {
 //        return true;
 //    }
 }
+
+    class Aresta {
+        private final int entrada;
+        private final int saida;
+
+        public Aresta(int entrada, int saida) {
+            this.entrada = entrada;
+            this.saida = saida;
+        }
+
+        public int getEntrada() {
+            return entrada;
+        }
+
+        public int getSaida() {
+            return saida;
+        }
+    }
